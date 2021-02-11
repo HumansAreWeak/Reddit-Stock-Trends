@@ -19,12 +19,13 @@ class TickerCounts:
 
     WEBSCRAPER_LIMIT = 2000
     config = configparser.ConfigParser()
-    config.read('./config/config.ini')
+    config.read(os.path.join(os.path.dirname(
+        __file__), "config", "config.ini"))
     stop_words = json.loads(config['FilteringOptions']['StopWords'])
     block_words = json.loads(config['FilteringOptions']['BlockWords'])
 
     def verify_ticker(self, tic):
-        with open('./config/tickers.json') as tickerFile:
+        with open(os.path.join(os.path.dirname(__file__), "config", "tickers.json")) as tickerFile:
             tickerList = json.load(tickerFile)
         try:
             if tickerList[tic]:
@@ -50,8 +51,10 @@ class TickerCounts:
         # Scrape subreddits `r/robinhoodpennystocks` and `r/pennystocks`
         # Current it does fetch a lot of additional data like upvotes, comments, awards etc but not using anything apart from title for now
         reddit = praw.Reddit('ClientSecrets')
-        subreddits = "+".join(json.loads(self.config['FilteringOptions']['Subreddits']))
-        new_bets = reddit.subreddit(subreddits).new(limit=self.WEBSCRAPER_LIMIT)
+        subreddits = "+".join(json.loads(
+            self.config['FilteringOptions']['Subreddits']))
+        new_bets = reddit.subreddit(subreddits).new(
+            limit=self.WEBSCRAPER_LIMIT)
 
         posts = [
             [
@@ -84,7 +87,8 @@ class TickerCounts:
                 verified_tics[ticker] = ticker_count
 
         # Create Datable of just mentions
-        tick_df = pd.DataFrame(verified_tics.items(), columns=["Ticker", "Mentions"])
+        tick_df = pd.DataFrame(verified_tics.items(),
+                               columns=["Ticker", "Mentions"])
         tick_df.sort_values(by=["Mentions"], inplace=True, ascending=False)
         tick_df.reset_index(inplace=True, drop=True)
 
